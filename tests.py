@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-import hydrostats.ens_metrics as em
 import unittest
 from compress_netcdf import compress_netcfd
 import os
 import xarray as xr
+from validate_forecasts import compute_all
 
 
 class TestCompressNetcdf(unittest.TestCase):
@@ -18,8 +18,8 @@ class TestCompressNetcdf(unittest.TestCase):
 
     def test_compress_netcdf(self):
         start_date = "20190104"
-        folder_path = os.path.join(os.getcwd(), 'Test_files/Individual_Ensembles')
-        out_path = os.path.join(os.getcwd(), 'Test_files')
+        folder_path = 'Test_files/Individual_Ensembles'
+        out_path = 'Test_files'
         compress_netcfd(folder_path, start_date, out_path, "Qout_south_america_continental", 10)
 
         ds = xr.open_dataset(os.path.join(os.getcwd(), out_path, start_date + ".nc"))
@@ -65,63 +65,114 @@ class TestCompressNetcdf(unittest.TestCase):
 class TestValidateForecasts(unittest.TestCase):
 
     def setUp(self):
-        pass
+        work_dir = "Test_files/Forecast_Validation_Files"
+        compute_all(work_dir, out_path="Test_files/Forecast_analysis_test.csv", memory_to_allocate_gb=1.0)
 
     def test_compress_netcdf(self):
-        work_dir = "/Test_files/Forecast_Validation_Files"
-        starting_date = "2018-08-19"
-        ending_date = "2018-12-16"
 
-        dates_range = pd.date_range(starting_date, ending_date)
-        date_strings = dates_range.strftime("%Y%m%d").tolist()
+        # # Code that can be used to generate the true values
+        # import hydrostats.ens_metrics as em
+        # import hydrostats.metrics as hm
+        #
+        # work_dir = "Test_files/Forecast_Validation_Files"
+        # starting_date = "2018-08-19"
+        # ending_date = "2018-12-16"
+        #
+        # dates_range = pd.date_range(starting_date, ending_date)
+        # date_strings = dates_range.strftime("%Y%m%d").tolist()
+        #
+        # files = [os.path.join(work_dir, i + ".nc") for i in date_strings]
+        #
+        # data_sets = [xr.open_dataset(file) for file in files]
+        #
+        # true_data = []
+        #
+        # # Getting rivids
+        # tmp_dataset = xr.open_dataset(files[0])
+        #
+        # rivids = tmp_dataset['rivid'].data.tolist()
+        #
+        # tmp_dataset.close()
+        #
+        # for i, rivid in enumerate(rivids):
+        #     for forecast_day in range(15):
+        #         dates = []
+        #         init_dates = []
+        #         data = []
+        #         init_data = []
+        #
+        #         for ds in data_sets:
+        #             dates.append(ds["date"].data[forecast_day])
+        #             data.append(ds["Qout"].data[i, forecast_day, :])
+        #
+        #             init_data.append(ds["initialization_values"].data[i])
+        #             init_dates.append(ds["start_date"].data)
+        #
+        #         pd_dates = pd.to_datetime(dates)
+        #         np_data = np.array(data)
+        #
+        #         df = pd.DataFrame(np_data, index=pd_dates,
+        #                           columns=["Ensemble {}".format(str(i).zfill(2)) for i in range(51)])
+        #
+        #         init_df = pd.DataFrame(init_data, index=pd.to_datetime(init_dates), columns=["Water Balance"])
+        #
+        #         benchmark_df = init_df.copy()
+        #         benchmark_df.index = init_df.index + pd.DateOffset(forecast_day + 1)
+        #         benchmark_df.columns = ["Benchmark"]
+        #
+        #         big_df = pd.DataFrame.join(init_df, [benchmark_df, df]).dropna()
+        #
+        #         obs = big_df.iloc[:, 0].values.astype(np.float64)
+        #         benchmark = big_df.iloc[:, 1].values
+        #         forecasts = big_df.iloc[:, 2:].values.astype(np.float64)
+        #
+        #         # CRPS
+        #         crps = em.ens_crps(obs, forecasts)["crpsMean"]
+        #         crps_bench = hm.mae(obs, benchmark)
+        #         crpss = em.skill_score(crps, crps_bench, perf_score=0)["skillScore"]
+        #
+        #         # MAE
+        #         mae = em.ens_mae(obs, forecasts)
+        #         mae_bench = hm.mae(obs, benchmark)
+        #         maess = em.skill_score(mae, mae_bench, perf_score=0)["skillScore"]
+        #
+        #         # MSE
+        #         mse = em.ens_mse(obs, forecasts)
+        #         mse_bench = hm.mse(obs, benchmark)
+        #         msess = em.skill_score(mse, mse_bench, perf_score=0)["skillScore"]
+        #
+        #         # RMSE
+        #         rmse = em.ens_rmse(obs, forecasts)
+        #         rmse_bench = hm.rmse(obs, benchmark)
+        #         rmsess = em.skill_score(rmse, rmse_bench, perf_score=0)["skillScore"]
+        #
+        #         # Pearson r
+        #         pearson_r = em.ens_pearson_r(obs, forecasts)
+        #         pearson_r_bench = hm.pearson_r(obs, benchmark)
+        #         pearson_r_ss = em.skill_score(pearson_r, pearson_r_bench, perf_score=1)["skillScore"]
+        #
+        #         true_data.append(
+        #             (rivid, forecast_day + 1, crps, crps_bench, crpss, mae, mae_bench, maess, mse, mse_bench,
+        #              msess, rmse, rmse_bench, rmsess, pearson_r, pearson_r_bench, pearson_r_ss)
+        #         )
+        #
+        # true_df = pd.DataFrame(
+        #     data=true_data,
+        #     columns=[
+        #         'Rivid', 'Forecast Day', 'CRPS', 'CRPS BENCH', 'CRPSS', "MAE", "MAE_BENCH", "MAESS", "MSE",
+        #         "MSE_BENCH", "MSESS", "RMSE", "RMSE_BENCH", "RMSESS", "Pearson_r", "Pearson_r_BENCH", "Pearson_r_SS"
+        #     ])
 
-        files = [os.path.join(work_dir, i + ".nc") for i in date_strings]
+        true_df = pd.read_pickle(r"Test_files/Comparison_Files/benchmark_forecast_validation_df.pkl")
 
-        data_sets = [xr.open_dataset(file) for file in files]
+        # Get the computed values (Generated in setUp)
+        test_df = pd.read_csv("Test_files/Forecast_analysis_test.csv")
 
-        for rivid in range(10):
-            for forecast_day in range(15):
-                dates = []
-                init_dates = []
-                data = []
-                init_data = []
-
-                for ds in data_sets:
-                    dates.append(ds["date"].data[forecast_day])
-                    data.append(ds["Qout"].data[rivid, forecast_day, :])
-
-                    init_data.append(ds["initialization_values"].data[rivid])
-                    init_dates.append(ds["start_date"].data)
-
-                pd_dates = pd.to_datetime(dates)
-                np_data = np.array(data)
-
-                df = pd.DataFrame(np_data, index=pd_dates,
-                                  columns=["Ensemble {}".format(str(i).zfill(2)) for i in range(51)])
-
-                init_df = pd.DataFrame(init_data, index=pd.to_datetime(init_dates), columns=["Water Balance"])
-
-                benchmark_df = init_df.copy()
-                benchmark_df.index = init_df.index + pd.DateOffset(1)
-                benchmark_df.columns = ["Benchmark"]
-
-                big_df = pd.DataFrame.join(init_df, [benchmark_df, df]).dropna()
-
-                obs = big_df.iloc[:, 0].values.astype(np.float64)
-                benchmark = big_df.iloc[:, 1].values
-                forecasts = big_df.iloc[:, 2:].values.astype(np.float64)
-
-                crps = em.ens_crps(obs, forecasts)["crpsMean"]
-                crps_bench = np.mean(np.abs(obs - benchmark))  # MAE
-                crpss = em.skill_score(crps, crps_bench, perf_score=0)
-                print("River: {}, Forecast Day: {}".format(rivid, forecast_day))
-                print("crps: {}, crps bench: {}, crpss: {}".format(crps, crps_bench, crpss["skillScore"]))
-
-        for ds in data_sets:
-            ds.close()
+        # Testing (Make sure it's precise to three decimals)
+        pd.testing.assert_frame_equal(true_df, test_df, check_less_precise=3)
 
     def tearDown(self):
-        pass
+        os.remove(r"Test_files/Forecast_analysis_test.csv")
 
 
 if __name__ == '__main__':
