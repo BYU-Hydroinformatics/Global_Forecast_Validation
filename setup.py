@@ -22,11 +22,12 @@ setup(
     install_requires=[
         'numpy',
         'scipy',
-        'dask',
+        'dask[complete]',
         'xarray',
         'pandas',
         'numba',
-        'netcdf4'
+        'netcdf4',
+        "progress",
     ],
     entry_points={
         'console_scripts': ['gb_fcst_val=global_forecast_validation.command_line:main', ],

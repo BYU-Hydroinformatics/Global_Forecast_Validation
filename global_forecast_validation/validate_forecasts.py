@@ -5,6 +5,7 @@ import os
 import numba as nb
 import time
 import dask.array as da
+from progress.bar import FillingCirclesBar
 
 
 def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, ending_date=None):
@@ -33,7 +34,7 @@ def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, e
         The starting date of the analysis formatted as YYYY-MM-DD (i.e. January 2, 2019 would be 2019-01-02).
 
     ending_date: str
-        The ending date of the analysis formatted as YYYY-MM-DD (i.e. January 2, 2019 would be 2019-01-02)
+        The ending date of the analysis formatted as YYYY-MM-DD (i.e. January 2, 2019 would be 2019-01-02).
 
     """
     # Checking how many rivids can be held in memory
@@ -87,6 +88,7 @@ def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, e
     list_of_tuples_with_metrics = []
 
     # Main Loop
+    filling = FillingCirclesBar('Validating Forecasts', max=num_chunk_iterations)  # Progress bar
     for chunk_number in range(num_chunk_iterations):
 
         big_forecast_data_array = np.asarray(big_dask_q_array[:, start_chunk:end_chunk, :, :])
@@ -112,6 +114,11 @@ def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, e
         start_chunk += chunk_size
         end_chunk += chunk_size
 
+        filling.next()  # Next progress bar
+
+    filling.finish()
+
+    print("Writing results to file")
     # Creating a dataframe with the results of the analysis
     final_df = pd.DataFrame(
         list_of_tuples_with_metrics,
@@ -121,6 +128,7 @@ def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, e
         ])
 
     final_df.to_csv(out_path, index=False)
+    print("Finished")
 
 
 @nb.njit(parallel=True)

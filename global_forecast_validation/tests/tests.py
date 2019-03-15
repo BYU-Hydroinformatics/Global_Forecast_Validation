@@ -2,9 +2,11 @@ import numpy as np
 import pandas as pd
 import unittest
 from global_forecast_validation.compress_netcdf import compress_netcfd
+from global_forecast_validation.validate_forecasts import compute_all
+from global_forecast_validation.extract_data import extract_by_rivid
 import os
 import xarray as xr
-from global_forecast_validation.validate_forecasts import compute_all
+import shutil
 
 
 class TestCompressNetcdf(unittest.TestCase):
@@ -186,6 +188,47 @@ class TestValidateForecasts(unittest.TestCase):
     def tearDown(self):
 
         os.remove(self.csv_path)
+
+
+class TestExtractData(unittest.TestCase):
+    """
+    Tests the functions included in compress_netcdf.py to make sure that they are working correctly with
+    the python version.
+    """
+
+    def setUp(self):
+        self.cwd = os.path.dirname(os.path.abspath(__file__))
+        work_dir = os.path.join(self.cwd, "Test_files/Forecast_Validation_Files")
+        self.out_path = os.path.join(self.cwd, "Test_files/extract_by_rivid_test")
+        rivid = 192451
+        extract_by_rivid(rivid=rivid, folder_path=work_dir, outpath=self.out_path)
+
+    def test_extract_by_rivid(self):
+
+        # Grabbing all of the files to test and turning them to dataframes
+        test_files = sorted([os.path.join(self.out_path, i) for i in os.listdir(self.out_path)])
+        test_df_list = []
+        for test_file in test_files:
+            temp_df = pd.read_csv(test_file)
+            temp_df.index = pd.to_datetime(temp_df.index)
+            test_df_list.append(temp_df)
+
+        # Grabbing all of the files to compare the generated files to
+        truth_path = os.path.join(self.cwd, "Test_files/Comparison_Files/extract_by_rivid_files")
+        truth_files = sorted([os.path.join(truth_path, i) for i in os.listdir(truth_path)])
+        truth_df_list = []
+        for truth_file in truth_files:
+            temp_df = pd.read_pickle(truth_file)
+            truth_df_list.append(temp_df)
+
+        # Testing
+        for truth, test in zip(truth_df_list, test_df_list):
+            with self.subTest(test=test):
+                pd.testing.assert_frame_equal(truth, test)
+
+    def tearDown(self):
+        shutil.rmtree(self.out_path)
+        os.mkdir(self.out_path)
 
 
 if __name__ == '__main__':
