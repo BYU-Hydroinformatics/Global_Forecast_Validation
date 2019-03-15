@@ -1,28 +1,28 @@
 import numpy as np
 import pandas as pd
 import unittest
-from compress_netcdf import compress_netcfd
+from global_forecast_validation.compress_netcdf import compress_netcfd
 import os
 import xarray as xr
-from validate_forecasts import compute_all
+from global_forecast_validation.validate_forecasts import compute_all
 
 
 class TestCompressNetcdf(unittest.TestCase):
     """
     Tests the functions included in compress_netcdf.py to make sure that they are working correctly with
-    your python version.
+    the python version.
     """
 
     def setUp(self):
-        pass
+        self.test_script_path = os.path.dirname(os.path.abspath(__file__))
 
     def test_compress_netcdf(self):
-        start_date = "20190104"
-        folder_path = 'Test_files/Individual_Ensembles'
-        out_path = 'Test_files'
-        compress_netcfd(folder_path, start_date, out_path, "Qout_south_america_continental", 10)
+        folder_path = os.path.join(self.test_script_path, 'Test_files/Individual_Ensembles_20190104')
 
-        ds = xr.open_dataset(os.path.join(os.getcwd(), out_path, start_date + ".nc"))
+        out_path = os.path.join(self.test_script_path, 'Test_files')
+        compress_netcfd(folder_path, out_path, "Qout_south_america_continental")
+
+        ds = xr.open_dataset(os.path.join(out_path, "20190104.nc"))
 
         flow_array = ds["Qout"].data
         flow_array_high_res = ds["Qout_high_res"].data
@@ -31,8 +31,12 @@ class TestCompressNetcdf(unittest.TestCase):
         date_high_res = ds["date_high_res"].data
         rivids = ds["rivid"].data
 
-        benchmark_flow_array = np.load("Test_files/Comparison_Files/benchmark_flow_array.npy")
-        benchmark_array_high_res = np.load("Test_files/Comparison_Files/benchmark_array_high_res.npy")
+        benchmark_flow_array = np.load(
+            os.path.join(self.test_script_path, r"Test_files/Comparison_Files/benchmark_flow_array.npy")
+        )
+        benchmark_array_high_res = np.load(
+            os.path.join(self.test_script_path, "Test_files/Comparison_Files/benchmark_array_high_res.npy")
+        )
         benchmark_initialization_values = np.array([1.9156765937805176, 1.7540310621261597, 1.5276174545288086,
                                                     2.0937132835388184, 3.4932050704956055, 3.678524971008301,
                                                     0.854943037033081, 1.688418984413147, 13.452759742736816,
@@ -48,7 +52,7 @@ class TestCompressNetcdf(unittest.TestCase):
         benchmark_rivids = np.array([192474, 192473, 192470, 192469, 192454, 192452, 192448, 192446, 192451, 192450],
                                     dtype=np.int32)
 
-        print("Testing")
+        # Testing
         self.assertTrue(np.all(np.isclose(flow_array, benchmark_flow_array)))
         self.assertTrue(np.all(np.isclose(flow_array_high_res, benchmark_array_high_res)))
         self.assertTrue(np.all(np.isclose(initialization_values, benchmark_initialization_values)))
@@ -59,16 +63,18 @@ class TestCompressNetcdf(unittest.TestCase):
         ds.close()
 
     def tearDown(self):
-        os.remove("Test_files/20190104.nc")
+        os.remove(os.path.join(self.test_script_path, "Test_files/20190104.nc"))
 
 
 class TestValidateForecasts(unittest.TestCase):
 
     def setUp(self):
-        work_dir = "Test_files/Forecast_Validation_Files"
-        compute_all(work_dir, out_path="Test_files/Forecast_analysis_test.csv", memory_to_allocate_gb=1.0)
+        self.test_script_path = os.path.dirname(os.path.abspath(__file__))
+        work_dir = os.path.join(self.test_script_path, "Test_files/Forecast_Validation_Files")
+        out_path = os.path.join(self.test_script_path, "Test_files/Forecast_analysis_test.csv")
+        compute_all(work_dir, out_path=out_path, memory_to_allocate_gb=1.0)
 
-    def test_compress_netcdf(self):
+    def test_compute_all(self):
 
         # # Code that can be used to generate the true values
         # import hydrostats.ens_metrics as em
@@ -163,16 +169,23 @@ class TestValidateForecasts(unittest.TestCase):
         #         "MSE_BENCH", "MSESS", "RMSE", "RMSE_BENCH", "RMSESS", "Pearson_r", "Pearson_r_BENCH", "Pearson_r_SS"
         #     ])
 
-        true_df = pd.read_pickle(r"Test_files/Comparison_Files/benchmark_forecast_validation_df.pkl")
+        pickle_path = os.path.join(
+            self.test_script_path, r"Test_files/Comparison_Files/benchmark_forecast_validation_df.pkl"
+        )
+        true_df = pd.read_pickle(pickle_path)
 
         # Get the computed values (Generated in setUp)
-        test_df = pd.read_csv("Test_files/Forecast_analysis_test.csv")
+        self.csv_path = os.path.join(
+            self.test_script_path, r"Test_files/Forecast_analysis_test.csv"
+        )
+        test_df = pd.read_csv(self.csv_path)
 
         # Testing (Make sure it's precise to three decimals)
         pd.testing.assert_frame_equal(true_df, test_df, check_less_precise=3)
 
     def tearDown(self):
-        os.remove(r"Test_files/Forecast_analysis_test.csv")
+
+        os.remove(self.csv_path)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 # Global_Forecast_Validation
 
-Python solution to run large scale forecast validation using data stored in NetCDF format. 
+Python solution to run large scale forecast validation using data stored in NetCDF format. This tool is meant to be 
+used with RAPIDpy, and should not be used with NetCDF files formatted in ways different than the RAPIDpy output.
 
 ## Installation 
 Dependencies are listed in Requirements.txt, the following code will add them to an existing conda environment (make 

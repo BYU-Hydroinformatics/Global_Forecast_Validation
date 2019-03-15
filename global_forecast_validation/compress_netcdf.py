@@ -4,9 +4,10 @@ import numpy as np
 import os
 
 
-def compress_netcfd(folder_path, start_date, out_folder, file_name, num_of_rivids):
+def compress_netcfd(folder_path, out_folder, file_name):
     """
-    Takes the 52 individual ensembles and combines them into one compact NetCDF file, saving disk space in the process.
+    Takes the 52 individual ensembles and combines them into one compact NetCDF file, saving disk space in the process
+    by eliminating the forecasts that aren't daily.
 
     Parameters
     ----------
@@ -14,18 +15,12 @@ def compress_netcfd(folder_path, start_date, out_folder, file_name, num_of_rivid
     folder_path: str
         The path to the folder containing the 52 ensemble forecast files in NetCDF format
 
-    start_date: str
-        The start date in YYYYMMDD format.
-
     out_folder: str
         The path to the folder that you want the more compact NetCDF file in.
 
     file_name: str
         The name of the region. For example, if the files followed the pattern of "Qout_africa_continental_1.nc,
         this argument would be "Qout_africa_continental"
-
-    num_of_rivids: int
-        The number of streams that are contained in the region.
     """
 
     # Based on 15 day forecast
@@ -35,7 +30,15 @@ def compress_netcfd(folder_path, start_date, out_folder, file_name, num_of_rivid
     # Excluding the first day because we already have initialization from the normal forecasts
     high_res_forecast_day_indices = np.array([24, 48, 72, 92, 100, 108, 112, 116, 120, 124])
 
-    start_datetime = to_datetime(start_date, infer_datetime_format=True)
+    # Getting the number of rivids and start date
+    tmp_file = os.path.join(folder_path, "{}_{}.nc".format(file_name, 1))
+    tmp_dataset = xr.open_dataset(tmp_file)
+
+    start_datetime = to_datetime(tmp_dataset["time"].values[0])
+    num_of_rivids = tmp_dataset['rivid'].size
+
+    tmp_dataset.close()
+
     dates = date_range(start_datetime + DateOffset(1), periods=15)
     high_res_dates = date_range(start_datetime + DateOffset(1), periods=10)
 
@@ -43,7 +46,6 @@ def compress_netcfd(folder_path, start_date, out_folder, file_name, num_of_rivid
     #  1) Rivid
     #  2) Number of forecast days (i.e. 15 in a 15 day forecast)
     #  3) Number of ensembles
-
     ensembles = np.zeros((num_of_rivids, 15, 51), dtype=np.float32)
     initialization = np.zeros((num_of_rivids,), dtype=np.float32)
 
@@ -93,19 +95,9 @@ def compress_netcfd(folder_path, start_date, out_folder, file_name, num_of_rivid
     }
 
     xarray_dataset = xr.Dataset(data_variables, coords)
-    xarray_dataset.to_netcdf(path=os.path.join(out_folder, '{}.nc'.format(start_date)), format='NETCDF4')
+    start_date_string = start_datetime.strftime("%Y%m%d")
+    xarray_dataset.to_netcdf(path=os.path.join(out_folder, '{}.nc'.format(start_date_string)), format='NETCDF4')
 
 
 if __name__ == "__main__":
     pass
-    # num_rivids = 24328
-    # file_name = "Qout_south_asia_mainland"
-    # out_path = "/Users/wade/Documents/South_Asia_Small"
-    #
-    # base_path = "/Users/wade/Documents/South_Asia_Forecasts"
-    # folder_paths = [os.path.join(base_path, x) for x in os.listdir(base_path)]
-    #
-    # for folder_path in folder_paths:
-    #     date_string = folder_path[43:-2]
-    #
-    #     compress_netcfd(folder_path, date_string, out_path, file_name, num_rivids)
