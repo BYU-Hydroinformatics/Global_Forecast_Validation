@@ -27,7 +27,7 @@ class Mock(MagicMock):
 MOCK_MODULES = [
     'numpy',
     'scipy',
-    'dask[complete]',
+    'dask',
     'xarray',
     'pandas',
     'numba',
