@@ -39,7 +39,8 @@ def main():
     # Setup compress command
     compress_parser = subparsers.add_parser(
         'compress',
-        help='Takes 52 separate NetCDF forecast files and combines them into one compact NetCDF file with only daily values'
+        help='Takes 52 separate NetCDF forecast files and combines them into one compact NetCDF file with only daily '
+             'values '
     )
     compress_parser.add_argument(
         'folder_path', help='The path to the directory containing the forecast files', type=str
@@ -56,9 +57,9 @@ def main():
     # Setup validate command
     validate_parser = subparsers.add_parser(
         'validate',
-        help='Takes a directory of NetCDf files created with the compress command and performs forecasts validation with '
-             'them. The results of the analysis are stored in a csv. WARNING: The netcdf files must be consecutive daily '
-             'values, else the results will be wrong.'
+        help='Takes a directory of NetCDf files created with the compress command and performs forecasts validation '
+             'with them. The results of the analysis are stored in a csv. WARNING: The netcdf files must be consecutive'
+             ' daily values, else the results will be wrong.'
     )
     validate_parser.add_argument(
         'work_dir', type=str,
@@ -66,15 +67,16 @@ def main():
              'function. Make sure that this directory only contains the compressed forecast files.'
     )
     validate_parser.add_argument(
-        "out_path", type=str, help="The path where the resulting CSV of results should be stored. Include the file name "
-                                   "in this path! For example, if I wanted the file to be stored in the same directory as "
-                                   "I ran the script in, I would simply set this parameter to be the name of the file (ie "
-                                   "Skill_Scores.csv)."
+        "out_path", type=str, help="The path where the resulting CSV of results should be stored. Include the file "
+                                   "name in this path! For example, if I wanted the file to be stored in the same "
+                                   "directory as I ran the script in, I would simply set this parameter to be the name "
+                                   "of the file (ie Skill_Scores.csv)."
     )
     validate_parser.add_argument(
         "memory", type=float, help="Indicates the memory that you would like to be allocated on the computer when "
-                                   "running the program. It is highly recommended to be conservative in this number as "
-                                   "slightly more memory may be consumed (maybe up to half a gig in very large regions)."
+                                   "running the program. It is highly recommended to be conservative in this number "
+                                   "as slightly more memory may be consumed (maybe up to half a gig in very large "
+                                   "regions)."
     )
     validate_parser.add_argument(
         '-sd', '--start_date', type=str, help='(Optional) The starting date of the analysis formatted as YYYY-MM-DD '
@@ -89,8 +91,8 @@ def main():
     # Setup extract command
     extract_parser = subparsers.add_parser(
         'extract',
-        help='Extracts data from a folder with NetCDF forecast files (generated with the compress_netcdf function) into '
-             'CSV files in the given path'
+        help='Extracts data from a folder with NetCDF forecast files (generated with the compress_netcdf function) '
+             'into CSV files in the given path'
     )
     extract_parser.add_argument(
         'rivid', type=int,
