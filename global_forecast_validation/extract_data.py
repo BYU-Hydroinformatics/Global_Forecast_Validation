@@ -8,7 +8,8 @@ import os
 def extract_by_rivid(rivid, folder_path, outpath):
     """
     Extracts data from a folder with NetCDF forecast files (generated with the compress_netcdf function) into CSV files
-    in the given path
+    in the given path. The CSV files are named 1_Day_Forecasts, 2_Day_Forecasts, etc. The initialization values (water
+    balance) as well as the high resolution forecasts are also provided in CSV format in the selected folder.
 
     Parameters
     ----------
