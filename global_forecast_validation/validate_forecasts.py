@@ -9,9 +9,17 @@ from progress.bar import FillingCirclesBar
 
 
 def compute_all(work_dir, out_path, memory_to_allocate_gb, starting_date=None, ending_date=None):
-    """
-    Computes forecast metrics for all of the streams in a region. Note that this function assumes that the same naming
-    convention as the `compress_netcdf.py` file produces is used (i.e. YYYYMMDD.nc as the file names).
+    """Computes forecast metrics for all of the streams in a region.
+
+    Note that this function assumes that the same naming convention as the `compress_netcdf.py` file produces is used
+    (i.e. YYYYMMDD.nc as the file names). It calculates the following metrics and skill scores (using a persistence
+    benchmark, which metric is also provided in the results).
+
+    - Continuous Ranked Probability Score
+    - Mean Absolute Error
+    - Mean Squared Error
+    - Root Mean Square Error
+    - Pearson R (Correlation)
 
     Parameters
     ----------

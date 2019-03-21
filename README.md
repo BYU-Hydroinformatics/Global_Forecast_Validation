@@ -4,8 +4,11 @@ Python solution to run large scale forecast validation using data stored in NetC
 used with RAPIDpy, and should not be used with NetCDF files formatted in ways different than the RAPIDpy output.
 
 ## Installation 
-As of right now, the package is able to be installed with `pip install global-forecast-validation`. In the future a 
-conda-forge version will also be released.
+To intall this package, simply use::
 
-## Usage
-The 
+    pip install global-forecast-validation
+
+It is recommended to install this in a seperate environment, especially if using conda, to avoid dependency conflicts.
+
+## Documentation
+[Link](https://global-forecast-validation.readthedocs.io/en/stable/)
