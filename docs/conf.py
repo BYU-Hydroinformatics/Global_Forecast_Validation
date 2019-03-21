@@ -33,7 +33,7 @@ MOCK_MODULES = [
     'pandas',
     'numba',
     'netcdf4',
-    "progress",
+    "progress.bar",
 ]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
