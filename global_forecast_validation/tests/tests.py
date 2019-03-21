@@ -1,10 +1,17 @@
+import os
+import sys
+
+# Need to make sure that the package is included in the path
+package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+if package_path not in sys.path:
+    sys.path.insert(0, package_path)
+
 import numpy as np
 import pandas as pd
 import unittest
 from global_forecast_validation.compress_netcdf import compress_netcfd
 from global_forecast_validation.validate_forecasts import compute_all
 from global_forecast_validation.extract_data import extract_by_rivid
-import os
 import xarray as xr
 import shutil
 
