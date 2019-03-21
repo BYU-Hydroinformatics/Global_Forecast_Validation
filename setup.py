@@ -6,7 +6,7 @@ with open('README.md') as f:
 setup(
     name='global_forecast_validation',
     packages=['global_forecast_validation'],
-    version='0.01',
+    version='0.2',
     description='Routines for forecast validation on a large scale.',
     long_description=README,
     long_description_content_type='text/markdown',
