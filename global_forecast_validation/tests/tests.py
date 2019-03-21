@@ -208,6 +208,8 @@ class TestExtractData(unittest.TestCase):
         work_dir = os.path.join(self.cwd, "Test_files/Forecast_Validation_Files")
         self.out_path = os.path.join(self.cwd, "Test_files/extract_by_rivid_test")
         rivid = 192451
+        if not os.path.exists(self.out_path):
+            os.mkdir(self.out_path)
         extract_by_rivid(rivid=rivid, folder_path=work_dir, outpath=self.out_path)
 
     def test_extract_by_rivid(self):
@@ -235,7 +237,6 @@ class TestExtractData(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.out_path)
-        os.mkdir(self.out_path)
 
 
 if __name__ == '__main__':
