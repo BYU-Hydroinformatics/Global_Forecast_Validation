@@ -28,6 +28,7 @@ MOCK_MODULES = [
     'numpy',
     'scipy',
     'dask',
+    'dask.array',
     'xarray',
     'pandas',
     'numba',
