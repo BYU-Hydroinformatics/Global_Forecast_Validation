@@ -14,6 +14,29 @@
 
 import os
 import sys
+from unittest.mock import MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+
+# Don't need these for documentation
+MOCK_MODULES = [
+    'numpy',
+    'scipy',
+    'dask[complete]',
+    'xarray',
+    'pandas',
+    'numba',
+    'netcdf4',
+    "progress",
+]
+
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
