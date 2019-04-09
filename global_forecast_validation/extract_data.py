@@ -18,11 +18,11 @@ def extract_by_rivid(rivid, folder_path, outpath):
         The rivid (COMID) of the desired stream to extract data for.
 
     folder_path: str
-        The path to the folder containing the forecast NetCDF files.
+        The path to the folder containing the forecast NetCDF files (NetCDF files MUST be formatted as YYYYMMDD.nc).
 
     outpath: str
         The path to the directory that you would like to write the CSV files to.
-        """
+    """
 
     files = sorted([os.path.join(folder_path, i) for i in os.listdir(folder_path)])
     ensemble_columns = ["Ensemble_{}".format(i) for i in range(51)]
